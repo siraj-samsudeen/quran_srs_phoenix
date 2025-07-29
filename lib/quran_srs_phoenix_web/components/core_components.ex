@@ -90,15 +90,29 @@ defmodule QuranSrsPhoenixWeb.CoreComponents do
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
   attr :class, :string
-  attr :variant, :string, values: ~w(primary)
+  attr :variant, :string, values: ~w(primary outline error)
+  attr :size, :string, values: ~w(xs sm md lg), default: "md"
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+    variants = %{
+      "primary" => "btn-primary", 
+      "outline" => "btn-outline",
+      "error" => "btn-error",
+      nil => "btn-primary btn-soft"
+    }
+
+    sizes = %{
+      "xs" => "btn-xs",
+      "sm" => "btn-sm", 
+      "md" => "",
+      "lg" => "btn-lg"
+    }
 
     assigns =
       assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
+        ["btn", Map.fetch!(variants, assigns[:variant]), Map.fetch!(sizes, assigns[:size])]
+        |> Enum.reject(&(&1 == ""))
       end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
@@ -411,7 +425,7 @@ defmodule QuranSrsPhoenixWeb.CoreComponents do
       <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
   """
   attr :name, :string, required: true
-  attr :class, :string, default: "size-4"
+  attr :class, :any, default: "size-4"
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""

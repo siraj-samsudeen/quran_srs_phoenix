@@ -426,3 +426,129 @@ All 152 tests pass, including 14 new permission system tests. No regressions in 
 - Helper functions provide seamless default/custom permission resolution
 - Foundation ready for admin UI and hafiz relationship management features
 
+### Generate permission configuration LiveView interface
+Creates a modern Phoenix LiveView interface for managing relationship permissions with DaisyUI styling, card-based layouts, and interactive toggle components.
+
+#### Generate permission management LiveView: `mix phx.gen.live Permissions RelationshipPermission relationship_permissions --no-context --no-schema`
+Generates LiveView modules without creating new context or schema files since they already exist from the permission system implementation.
+
+**Generated Files:**
+- `lib/quran_srs_phoenix_web/live/relationship_permission_live/index.ex` - List view for permission configurations
+- `lib/quran_srs_phoenix_web/live/relationship_permission_live/show.ex` - Detail view for individual permission settings
+- `lib/quran_srs_phoenix_web/live/relationship_permission_live/form.ex` - Form component for create/edit operations
+- `test/quran_srs_phoenix_web/live/relationship_permission_live_test.exs` - Comprehensive LiveView tests
+
+#### Create modern UI with DaisyUI components and card-based layouts
+Implements a sophisticated user interface using DaisyUI design system with card-based layouts for better visual organization.
+
+**Index Page Features:**
+- Card-based layout with each permission configuration in its own card
+- Relationship icons (heart for parent, academic cap for teacher, user for student, home for family)
+- Permission badges showing enabled/disabled status with color coding
+- Grid layout for permission toggles with success/base color theming
+- Real-time updates via Phoenix.PubSub subscriptions
+
+**Show Page Features:**
+- Detailed view with large relationship icon and description
+- Permission status cards with enabled/disabled indicators
+- Card-based layout with dividers and proper spacing
+- Navigation breadcrumbs and action buttons
+
+**Form Page Features:**
+- Two-card layout separating relationship selection from permissions
+- Icon headers for visual hierarchy
+- Grid layout for permission toggles on larger screens
+- Professional footer with action buttons
+
+#### Add permission toggle components with visual feedback
+Creates custom toggle components that provide intuitive visual feedback for permission states.
+
+**Permission Toggle Component (`permission_toggle/1`):**
+- Interactive cards that change appearance based on state
+- Success color theming when enabled, neutral when disabled
+- Toggle switches using DaisyUI's `toggle-success` class
+- Icon integration with color coordination
+- Hover effects and smooth transitions
+- Comprehensive error handling and validation display
+
+**Permission Badge Component (`permission_badge/1`):**
+- Compact display for index page
+- Color-coded badges (success green when enabled, neutral when disabled)
+- Status indicators with circular dots
+- Icon integration for quick recognition
+
+**Visual Design Features:**
+- Border color changes based on enabled state (success border when enabled)
+- Background color coordination (success/20 opacity when enabled)
+- Icon color synchronization with overall state
+- Consistent spacing and typography hierarchy
+
+#### Update router with authenticated permission routes
+Added routes within the authenticated `live_session` block to ensure only logged-in users can access permission management.
+
+**Routes Added:**
+```elixir
+# Permission management routes
+live "/permissions", RelationshipPermissionLive.Index, :index
+live "/permissions/new", RelationshipPermissionLive.Form, :new
+live "/permissions/:id", RelationshipPermissionLive.Show, :show
+live "/permissions/:id/edit", RelationshipPermissionLive.Form, :edit
+```
+
+**Security Features:**
+- Routes protected by `:require_authenticated_user` pipeline
+- `on_mount` callback ensures authentication before LiveView loads
+- All queries automatically scoped to current user via `current_scope`
+- Cross-user data protection through user scoping
+
+#### Enhance UI with relationship icons and descriptions
+Adds semantic visual elements to improve user understanding of relationship types.
+
+**Relationship Icons:**
+- Parent: `hero-heart` (representing care and love)
+- Teacher: `hero-academic-cap` (representing education and authority)
+- Student: `hero-user` (representing the individual learner)
+- Family: `hero-home` (representing family support)
+
+**Relationship Descriptions:**
+- Parent: "Parent or guardian with oversight responsibilities"
+- Teacher: "Educational supervisor with teaching authority"
+- Student: "Learning participant in the memorization program"
+- Family: "Family member with supportive access"
+
+**UI Enhancement Features:**
+- Consistent icon usage across all views (index, show, form)
+- Icon color coordination with component states
+- Descriptive text to clarify relationship roles
+- Capitalized relationship names for better readability
+
+#### Run tests: `mix test`
+All 158 tests pass, including 6 new LiveView tests for permission management interface.
+
+**Test Coverage:**
+- Index page rendering and streams functionality
+- Create/Read/Update/Delete operations through LiveView
+- Form validation and error handling
+- Navigation between views and return path handling
+- Real-time updates via PubSub integration
+- User scoping and security constraints
+
+**Key LiveView Testing Features:**
+- Uses Phoenix Test framework for intuitive testing
+- Form submission and validation testing
+- Component state and event testing
+- Navigation and routing validation
+- Error handling and flash message testing
+
+**Security Testing:**
+- User authentication requirements verified
+- Cross-user data access prevention
+- Proper scoping of all operations
+- Authorization checks for all CRUD operations
+
+**UI/UX Testing:**
+- Card layout rendering verification
+- Permission toggle component functionality
+- Icon and description display validation
+- Responsive design behavior testing
+

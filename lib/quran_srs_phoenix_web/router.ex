@@ -60,6 +60,12 @@ defmodule QuranSrsPhoenixWeb.Router do
       live "/hafizs/new", HafizLive.Form, :new
       live "/hafizs/:id", HafizLive.Show, :show
       live "/hafizs/:id/edit", HafizLive.Form, :edit
+      
+      # Permission configuration routes
+      live "/permissions", RelationshipPermissionLive.Index, :index
+      live "/permissions/new", RelationshipPermissionLive.Form, :new
+      live "/permissions/:id", RelationshipPermissionLive.Show, :show
+      live "/permissions/:id/edit", RelationshipPermissionLive.Form, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password
