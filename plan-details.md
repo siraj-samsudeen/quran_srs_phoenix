@@ -302,3 +302,127 @@ Both new tests pass successfully:
 - LiveView test verifies UI behavior
 - No regression in existing tests
 
+### Create configurable permission system for hafiz relationships
+Implements a flexible permission system where users can configure what different relationship types (parent, teacher, student, family) are allowed to do with hafiz profiles. This transforms rigid role-based permissions into user-customizable relationship permissions.
+
+#### Generate Permissions context: `mix phx.gen.context Permissions RelationshipPermission relationship_permissions`
+Created separate Permissions context to avoid cluttering the Accounts context and maintain clean separation of concerns.
+
+**Command executed:** 
+```bash
+mix phx.gen.context Permissions RelationshipPermission relationship_permissions relationship:enum:parent:teacher:student:family can_view_progress:boolean can_edit_details:boolean can_manage_users:boolean can_delete_hafiz:boolean can_edit_preferences:boolean
+```
+
+**Generated Files:**
+- `lib/quran_srs_phoenix/permissions/relationship_permission.ex` - Schema with Ecto.Enum for relationship types
+- `lib/quran_srs_phoenix/permissions.ex` - Context with CRUD operations and helper functions
+- `priv/repo/migrations/*_create_relationship_permissions.exs` - Migration with unique constraint
+- `test/quran_srs_phoenix/permissions_test.exs` - Comprehensive test coverage
+- `test/support/fixtures/permissions_fixtures.ex` - Test fixtures
+
+**Database Schema:**
+- `relationship` - Enum: [:parent, :teacher, :student, :family]
+- `can_view_progress` - Boolean: View hafiz memorization progress
+- `can_edit_details` - Boolean: Edit hafiz name, capacity, effective date
+- `can_manage_users` - Boolean: Add/remove users from hafiz profile
+- `can_delete_hafiz` - Boolean: Delete entire hafiz profile
+- `can_edit_preferences` - Boolean: Modify memorization preferences
+- `user_id` - Foreign key with cascade delete
+- Unique constraint on [relationship, user_id] prevents duplicates
+
+#### Define default permission configurations for all relationship types
+Instead of storing system defaults in database (which caused foreign key issues), defaults are stored as module attributes in the Permissions context.
+
+**Default Permission Matrix:**
+```elixir
+@default_permissions %{
+  parent: %{
+    can_view_progress: true,
+    can_edit_details: true,
+    can_manage_users: false,
+    can_delete_hafiz: false,
+    can_edit_preferences: true
+  },
+  teacher: %{
+    can_view_progress: true,
+    can_edit_details: true,      # Per user requirement
+    can_manage_users: false,
+    can_delete_hafiz: false,
+    can_edit_preferences: true   # Per user requirement
+  },
+  student: %{
+    can_view_progress: true,
+    can_edit_details: false,
+    can_manage_users: false,
+    can_delete_hafiz: false,
+    can_edit_preferences: true   # Hafiz can edit own preferences
+  },
+  family: %{
+    can_view_progress: true,
+    can_edit_details: false,
+    can_manage_users: false,
+    can_delete_hafiz: false,
+    can_edit_preferences: false  # Read-only access
+  }
+}
+```
+
+**Key Design Decisions:**
+- Teachers get edit permissions as requested by user
+- Students (hafiz themselves) can edit their own preferences
+- Family members get read-only access
+- No relationship type gets user management or deletion rights by default (only owners)
+
+#### Add permission helper functions for dynamic permission checking
+Created intelligent helper functions that seamlessly blend defaults with user customizations.
+
+**Core Helper Functions:**
+- `get_default_permissions/1` - Returns default permissions for any relationship type
+- `get_all_default_permissions/0` - Returns complete default configuration map
+- `get_relationship_permission/2` - Returns configured permission or default if not set
+- `ensure_user_permissions/1` - Auto-creates missing permissions with defaults for new users
+
+**Smart Permission Resolution:**
+```elixir
+def get_relationship_permission(%Scope{} = scope, relationship) do
+  case Repo.get_by(RelationshipPermission, user_id: scope.user.id, relationship: relationship) do
+    nil -> 
+      # Return struct with default permissions - no database hit needed
+      default = get_default_permissions(relationship)
+      struct(RelationshipPermission, Map.put(default, :relationship, relationship))
+    permission -> permission  # Return user's custom configuration
+  end
+end
+```
+
+**Benefits:**
+- **Zero Setup Required**: System works immediately with sensible defaults
+- **No Database Overhead**: Defaults don't require database storage or lookups
+- **Progressive Enhancement**: Users can customize permissions as needed
+- **Consistent API**: Same function works for defaults and custom configurations
+
+#### Write comprehensive tests for permission system
+Created 14 tests covering both basic CRUD operations and intelligent permission helpers.
+
+**Test Categories:**
+1. **Basic CRUD Tests (10 tests)** - Generated tests ensuring database operations work correctly with user scoping and security
+2. **Permission Helper Tests (4 tests)** - Custom tests for the intelligent permission system:
+   - `get_default_permissions/1` - Verifies correct defaults for each relationship type
+   - `get_relationship_permission/2` returns default - Tests fallback when not configured
+   - `get_relationship_permission/2` returns configured - Tests custom override behavior
+   - `ensure_user_permissions/1` - Tests auto-creation of missing permissions
+
+**Security Testing:**
+- User scoping: Every operation restricted to current user's data
+- Cross-user protection: Users cannot access others' permission configurations
+- Data validation: Invalid permission configurations properly rejected
+
+#### Run tests: `mix test`
+All 152 tests pass, including 14 new permission system tests. No regressions in existing functionality.
+
+**Test Results:**
+- Permission system fully functional with defaults and customization
+- Security constraints working properly
+- Helper functions provide seamless default/custom permission resolution
+- Foundation ready for admin UI and hafiz relationship management features
+
