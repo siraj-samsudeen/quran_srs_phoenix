@@ -394,4 +394,94 @@ defmodule QuranSrsPhoenix.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "hafizs" do
+    alias QuranSrsPhoenix.Accounts.Hafiz
+
+    import QuranSrsPhoenix.AccountsFixtures, only: [user_scope_fixture: 0]
+    import QuranSrsPhoenix.AccountsFixtures
+
+    @invalid_attrs %{name: nil, daily_capacity: nil, effective_date: nil}
+
+    test "list_hafizs/1 returns all scoped hafizs" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      other_hafiz = hafiz_fixture(other_scope)
+      assert Accounts.list_hafizs(scope) == [hafiz]
+      assert Accounts.list_hafizs(other_scope) == [other_hafiz]
+    end
+
+    test "get_hafiz!/2 returns the hafiz with given id" do
+      scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Accounts.get_hafiz!(scope, hafiz.id) == hafiz
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_hafiz!(other_scope, hafiz.id) end
+    end
+
+    test "create_hafiz/2 with valid data creates a hafiz" do
+      valid_attrs = %{name: "some name", daily_capacity: 42, effective_date: ~D[2025-07-28]}
+      scope = user_scope_fixture()
+
+      assert {:ok, %Hafiz{} = hafiz} = Accounts.create_hafiz(scope, valid_attrs)
+      assert hafiz.name == "some name"
+      assert hafiz.daily_capacity == 42
+      assert hafiz.effective_date == ~D[2025-07-28]
+      assert hafiz.user_id == scope.user.id
+    end
+
+    test "create_hafiz/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_hafiz(scope, @invalid_attrs)
+    end
+
+    test "update_hafiz/3 with valid data updates the hafiz" do
+      scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      update_attrs = %{name: "some updated name", daily_capacity: 43, effective_date: ~D[2025-07-29]}
+
+      assert {:ok, %Hafiz{} = hafiz} = Accounts.update_hafiz(scope, hafiz, update_attrs)
+      assert hafiz.name == "some updated name"
+      assert hafiz.daily_capacity == 43
+      assert hafiz.effective_date == ~D[2025-07-29]
+    end
+
+    test "update_hafiz/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Accounts.update_hafiz(other_scope, hafiz, %{})
+      end
+    end
+
+    test "update_hafiz/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_hafiz(scope, hafiz, @invalid_attrs)
+      assert hafiz == Accounts.get_hafiz!(scope, hafiz.id)
+    end
+
+    test "delete_hafiz/2 deletes the hafiz" do
+      scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      assert {:ok, %Hafiz{}} = Accounts.delete_hafiz(scope, hafiz)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_hafiz!(scope, hafiz.id) end
+    end
+
+    test "delete_hafiz/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      assert_raise MatchError, fn -> Accounts.delete_hafiz(other_scope, hafiz) end
+    end
+
+    test "change_hafiz/2 returns a hafiz changeset" do
+      scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      assert %Ecto.Changeset{} = Accounts.change_hafiz(scope, hafiz)
+    end
+  end
 end

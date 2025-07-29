@@ -86,4 +86,19 @@ defmodule QuranSrsPhoenix.AccountsFixtures do
       set: [inserted_at: dt, authenticated_at: dt]
     )
   end
+
+  @doc """
+  Generate a hafiz.
+  """
+  def hafiz_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        daily_capacity: 42,
+        effective_date: ~D[2025-07-28],
+        name: "some name"
+      })
+
+    {:ok, hafiz} = QuranSrsPhoenix.Accounts.create_hafiz(scope, attrs)
+    hafiz
+  end
 end

@@ -14,11 +14,14 @@
   - [x] Run migrations to create auth tables: `mix ecto.migrate`
   - [x] Test authentication system functionality: `mix test`
 
-## Phase 2: Extend User Schema
-- [ ] Add extended user fields for SRS functionality
-  - [ ] Generate migration for extended user fields: `mix ecto.gen.migration extend_users_table`
-  - [ ] Add migration content for user extensions (name, role, timezone, etc.)
-  - [ ] Run migration to update database: `mix ecto.migrate`
+## Phase 2: Hafiz Database Tables
+- [x] Plan hafiz table structure
+- [x] Generate Hafiz table
+  - [x] Generate Hafiz table under existing Accounts context: `mix phx.gen.context ...`
+  - [x] Run tests: `mix test`
+- [ ] Generate HafizUser M2M relationship table
+  - [ ] Generate HafizUser relationship context: `mix phx.gen.context Accounts HafizUser hafiz_users user_id:references:users hafiz_id:references:hafizs relationship`
+  - [ ] Run migrations to create both tables: `mix ecto.migrate`
 
 ## Phase 3: Core Database Schema (3-Layer Architecture)
 

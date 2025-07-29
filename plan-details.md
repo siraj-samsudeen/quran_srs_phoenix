@@ -103,3 +103,40 @@ Runs expanded test suite including all authentication functionality. Tests now i
 - User fixtures in `test/support/fixtures/accounts_fixtures.ex`
 - Comprehensive test coverage for all authentication flows
 
+## Phase 2: Hafiz Database Tables
+
+### Plan hafiz table structure
+Many-to-many relationship between users and hafiz profiles to support sharing (parents, teachers, family members).
+
+**Hafiz Table Fields:**
+- `name` - String, name for the hafiz profile
+- `daily_capacity` - Integer, pages per day capacity
+- `effective_date` - Date, current "today" date for this hafiz (allows time travel)
+
+**Hafiz_Users Relationship Table Fields:**
+- `user_id` - Foreign key to users table
+- `hafiz_id` - Foreign key to hafizs table  
+- `relationship` - Ecto.Enum, values: [:owner, :parent, :teacher, :student, :family]
+
+**Business Rules:**
+- Exactly one `:owner` per hafiz (the creator)
+- Only `:owner` can add/remove other user relationships
+- `:owner` relationship cannot be deleted (only hafiz deletion removes owner)
+- Users can have multiple relationships to different hafiz profiles
+- Same user can have different relationship types to different hafiz profiles
+
+### Generate Hafiz table
+Creates Hafiz schema, context functions, migration, and comprehensive test coverage. Uses existing Accounts context since hafiz profiles are user account extensions.
+
+#### Generate Hafiz table under existing Accounts context: `mix phx.gen.context ...`
+Command executed: `mix phx.gen.context Accounts Hafiz hafizs name daily_capacity:integer effective_date:date`
+
+**Generated Files:**
+- `lib/quran_srs_phoenix/accounts/hafiz.ex` - Schema with changeset validation and user scoping
+- `priv/repo/migrations/*_create_hafizs.exs` - Migration with foreign key to users and index
+- Enhanced `lib/quran_srs_phoenix/accounts.ex` - CRUD functions with authorization
+- Test fixtures and 10 comprehensive tests covering authorization and CRUD operations
+
+#### Run tests: `mix test`
+All 120 tests passed, confirming hafiz table creation was successful and didn't break existing functionality.
+
