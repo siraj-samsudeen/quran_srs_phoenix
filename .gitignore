@@ -35,3 +35,4 @@ quran_srs_phoenix-*.tar
 npm-debug.log
 /assets/node_modules/
 
+.serena

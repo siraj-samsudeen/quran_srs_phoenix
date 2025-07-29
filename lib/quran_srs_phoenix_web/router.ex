@@ -54,6 +54,12 @@ defmodule QuranSrsPhoenixWeb.Router do
       on_mount: [{QuranSrsPhoenixWeb.UserAuth, :require_authenticated}] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+      
+      # Hafiz management routes
+      live "/hafizs", HafizLive.Index, :index
+      live "/hafizs/new", HafizLive.Form, :new
+      live "/hafizs/:id", HafizLive.Show, :show
+      live "/hafizs/:id/edit", HafizLive.Form, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password

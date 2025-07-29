@@ -22,6 +22,11 @@
 - [x] Generate HafizUser M2M relationship table
   - [x] Generate HafizUser relationship context: `mix phx.gen.context ...`
   - [x] Run tests: `mix test`
+- [x] Generate Hafiz LiveView interface
+  - [x] Generate Hafiz management LiveView: `mix phx.gen.live Accounts Hafiz hafizs name:string daily_capacity:integer effective_date:date --no-context --no-schema`
+  - [x] Update router with authenticated Hafiz routes
+  - [x] Run migrations if any: `mix ecto.migrate`
+  - [x] Test LiveView functionality: `mix test`
 
 ## Phase 3: Core Database Schema (3-Layer Architecture)
 
