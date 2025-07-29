@@ -15,7 +15,15 @@ defmodule QuranSrsPhoenix.Accounts.Hafiz do
   def changeset(hafiz, attrs, user_scope) do
     hafiz
     |> cast(attrs, [:name, :daily_capacity, :effective_date])
-    |> validate_required([:name, :daily_capacity, :effective_date])
+    |> validate_required([:name, :daily_capacity])
+    |> put_default_effective_date()
     |> put_change(:user_id, user_scope.user.id)
+  end
+  
+  defp put_default_effective_date(changeset) do
+    case get_field(changeset, :effective_date) do
+      nil -> put_change(changeset, :effective_date, Date.utc_today())
+      _ -> changeset
+    end
   end
 end

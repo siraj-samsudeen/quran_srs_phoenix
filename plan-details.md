@@ -207,10 +207,98 @@ All 136 tests passing, including new LiveView tests. Test coverage includes:
 - Real-time updates between connected clients
 - User scoping and authorization
 
+**Important Discovery - User Scoping:**
+Phoenix 1.8 introduced automatic user scoping when generating contexts within the Accounts module. This explains why `user_id` was automatically added to the hafizs table even though it wasn't specified in our generator command. This is a security-first feature that prevents broken access control (OWASP #1 vulnerability) by automatically scoping all queries to the current user.
+
+**Hybrid Ownership Model:**
+The current implementation has both direct ownership (user_id in hafizs) and many-to-many relationships (hafiz_users table). This creates a powerful hybrid model:
+
+1. **Direct Ownership (user_id in hafizs table)**
+   - Represents the creator/owner of the hafiz profile
+   - Automatically secured through Phoenix scoping
+   - Owner has full control (edit, delete, share)
+   - Simple queries for "my hafizs"
+
+2. **Shared Access (hafiz_users table)**
+   - Additional users with various relationship types
+   - Parents, teachers, students can have different access levels
+   - Flexible permission model
+   - Enables "shared with me" functionality
+
+**Benefits of Hybrid Approach:**
+- Secure by default - can't accidentally access others' data
+- Clear ownership model with audit trail
+- Flexible sharing capabilities
+- Efficient queries for both owned and shared hafizs
+- Follows Phoenix 1.8 best practices
+
+**Implementation Strategy for Future Enhancement:**
+```elixir
+# List hafizs I own (already implemented via scoping)
+def list_owned_hafizs(scope)
+
+# List hafizs shared with me (to be implemented)
+def list_shared_hafizs(scope)  
+
+# List all accessible hafizs (owned + shared)
+def list_all_hafizs(scope)
+```
+
 **Next Steps:**
-The Hafiz LiveView provides basic CRUD functionality. Future enhancements will include:
-- HafizUser relationship management UI
-- Permission-based actions (only owners can edit/delete)
-- Hafiz switching dropdown in navigation
+The Hafiz LiveView provides basic CRUD functionality with ownership scoping. Future enhancements will include:
+- Implement shared hafiz access through hafiz_users relationships
+- Add UI for managing user relationships (invite parents/teachers)
+- Permission-based actions based on relationship type
+- Hafiz switching dropdown showing owned + shared profiles
 - Integration with revision and memorization features
+
+### Add default value for effective_date in hafiz table
+Enhances user experience by automatically setting effective_date to today when creating a new hafiz profile, removing the need for users to manually select today's date.
+
+#### Update hafiz schema to default effective_date to today
+Modified `lib/quran_srs_phoenix/accounts/hafiz.ex` to handle default date setting at the application level.
+
+**Changes:**
+- Removed `effective_date` from `validate_required/2` list
+- Added `put_default_effective_date/1` private function that:
+  - Checks if effective_date is nil using `get_field/2`
+  - Sets it to `Date.utc_today()` if not provided
+  - Returns changeset unchanged if date already exists
+
+#### Generate migration: `mix ecto.gen.migration add_default_to_hafiz_effective_date`
+Created migration file `20250729103237_add_default_to_hafiz_effective_date.exs` to add database-level default.
+
+#### Add database default for effective_date: `mix ecto.migrate`
+Migration adds database-level default using PostgreSQL's `CURRENT_DATE` function.
+
+**Migration content:**
+```elixir
+alter table(:hafizs) do
+  modify :effective_date, :date, default: fragment("CURRENT_DATE")
+end
+```
+
+**Benefits:**
+- Database consistency - even direct SQL inserts get today's date
+- Works with both application and database level operations
+- No breaking changes for existing records
+
+#### Write context and LiveView tests
+Added comprehensive test coverage to ensure the feature works correctly.
+
+**Context Test** (`test/quran_srs_phoenix/accounts_test.exs`):
+- Test: "create_hafiz/2 without effective_date defaults to today"
+- Verifies that `Accounts.create_hafiz/2` without effective_date uses `Date.utc_today()`
+- Ensures the default is applied at the schema level
+
+**LiveView Test** (`test/quran_srs_phoenix_web/live/hafiz_live_test.exs`):
+- Test: "saves new hafiz without effective_date uses today's date"
+- Verifies form submission without date input shows today's date in the UI
+- Confirms user experience matches expected behavior
+
+#### Run tests: `mix test`
+Both new tests pass successfully:
+- Context test verifies schema behavior
+- LiveView test verifies UI behavior
+- No regression in existing tests
 

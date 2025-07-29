@@ -27,6 +27,12 @@
   - [x] Update router with authenticated Hafiz routes
   - [x] Run migrations if any: `mix ecto.migrate`
   - [x] Test LiveView functionality: `mix test`
+- [ ] Add default value for effective_date in hafiz table
+  - [ ] Update hafiz schema to default effective_date to today
+  - [ ] Generate migration: `mix ecto.gen.migration add_default_to_hafiz_effective_date`
+  - [ ] Add database default for effective_date: `mix ecto.migrate`
+  - [ ] Write context and LiveView tests
+  - [ ] Run tests: `mix test`
 
 ## Phase 3: Core Database Schema (3-Layer Architecture)
 

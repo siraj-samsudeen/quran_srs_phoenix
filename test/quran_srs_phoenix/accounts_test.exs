@@ -436,6 +436,17 @@ defmodule QuranSrsPhoenix.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_hafiz(scope, @invalid_attrs)
     end
 
+    test "create_hafiz/2 without effective_date defaults to today" do
+      scope = user_scope_fixture()
+      valid_attrs = %{name: "some name", daily_capacity: 42}
+      
+      assert {:ok, %Hafiz{} = hafiz} = Accounts.create_hafiz(scope, valid_attrs)
+      assert hafiz.name == "some name"
+      assert hafiz.daily_capacity == 42
+      assert hafiz.effective_date == Date.utc_today()
+      assert hafiz.user_id == scope.user.id
+    end
+
     test "update_hafiz/3 with valid data updates the hafiz" do
       scope = user_scope_fixture()
       hafiz = hafiz_fixture(scope)

@@ -52,6 +52,30 @@ defmodule QuranSrsPhoenixWeb.HafizLiveTest do
       assert html =~ "some name"
     end
 
+    test "saves new hafiz without effective_date uses today's date", %{conn: conn} do
+      {:ok, index_live, _html} = live(conn, ~p"/hafizs")
+
+      assert {:ok, form_live, _} =
+               index_live
+               |> element("a", "New Hafiz")
+               |> render_click()
+               |> follow_redirect(conn, ~p"/hafizs/new")
+
+      create_attrs_without_date = %{name: "test hafiz", daily_capacity: 10}
+
+      assert {:ok, index_live, _html} =
+               form_live
+               |> form("#hafiz-form", hafiz: create_attrs_without_date)
+               |> render_submit()
+               |> follow_redirect(conn, ~p"/hafizs")
+
+      html = render(index_live)
+      assert html =~ "Hafiz created successfully"
+      assert html =~ "test hafiz"
+      # The effective_date should be set to today's date
+      assert html =~ Date.utc_today() |> to_string()
+    end
+
     test "updates hafiz in listing", %{conn: conn, hafiz: hafiz} do
       {:ok, index_live, _html} = live(conn, ~p"/hafizs")
 
