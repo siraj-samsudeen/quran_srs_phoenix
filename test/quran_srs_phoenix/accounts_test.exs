@@ -484,4 +484,90 @@ defmodule QuranSrsPhoenix.AccountsTest do
       assert %Ecto.Changeset{} = Accounts.change_hafiz(scope, hafiz)
     end
   end
+
+  describe "hafiz_users" do
+    alias QuranSrsPhoenix.Accounts.HafizUser
+
+    import QuranSrsPhoenix.AccountsFixtures, only: [user_scope_fixture: 0]
+    import QuranSrsPhoenix.AccountsFixtures
+
+    @invalid_attrs %{relationship: nil}
+
+    test "list_hafiz_users/1 returns all scoped hafiz_users" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      other_hafiz_user = hafiz_user_fixture(other_scope)
+      assert Accounts.list_hafiz_users(scope) == [hafiz_user]
+      assert Accounts.list_hafiz_users(other_scope) == [other_hafiz_user]
+    end
+
+    test "get_hafiz_user!/2 returns the hafiz_user with given id" do
+      scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Accounts.get_hafiz_user!(scope, hafiz_user.id) == hafiz_user
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_hafiz_user!(other_scope, hafiz_user.id) end
+    end
+
+    test "create_hafiz_user/2 with valid data creates a hafiz_user" do
+      valid_attrs = %{relationship: :owner}
+      scope = user_scope_fixture()
+
+      assert {:ok, %HafizUser{} = hafiz_user} = Accounts.create_hafiz_user(scope, valid_attrs)
+      assert hafiz_user.relationship == :owner
+      assert hafiz_user.user_id == scope.user.id
+    end
+
+    test "create_hafiz_user/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_hafiz_user(scope, @invalid_attrs)
+    end
+
+    test "update_hafiz_user/3 with valid data updates the hafiz_user" do
+      scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      update_attrs = %{relationship: :parent}
+
+      assert {:ok, %HafizUser{} = hafiz_user} = Accounts.update_hafiz_user(scope, hafiz_user, update_attrs)
+      assert hafiz_user.relationship == :parent
+    end
+
+    test "update_hafiz_user/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Accounts.update_hafiz_user(other_scope, hafiz_user, %{})
+      end
+    end
+
+    test "update_hafiz_user/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_hafiz_user(scope, hafiz_user, @invalid_attrs)
+      assert hafiz_user == Accounts.get_hafiz_user!(scope, hafiz_user.id)
+    end
+
+    test "delete_hafiz_user/2 deletes the hafiz_user" do
+      scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      assert {:ok, %HafizUser{}} = Accounts.delete_hafiz_user(scope, hafiz_user)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_hafiz_user!(scope, hafiz_user.id) end
+    end
+
+    test "delete_hafiz_user/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      assert_raise MatchError, fn -> Accounts.delete_hafiz_user(other_scope, hafiz_user) end
+    end
+
+    test "change_hafiz_user/2 returns a hafiz_user changeset" do
+      scope = user_scope_fixture()
+      hafiz_user = hafiz_user_fixture(scope)
+      assert %Ecto.Changeset{} = Accounts.change_hafiz_user(scope, hafiz_user)
+    end
+  end
 end

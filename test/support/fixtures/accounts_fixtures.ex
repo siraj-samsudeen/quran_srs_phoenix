@@ -101,4 +101,17 @@ defmodule QuranSrsPhoenix.AccountsFixtures do
     {:ok, hafiz} = QuranSrsPhoenix.Accounts.create_hafiz(scope, attrs)
     hafiz
   end
+
+  @doc """
+  Generate a hafiz_user.
+  """
+  def hafiz_user_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        relationship: :owner
+      })
+
+    {:ok, hafiz_user} = QuranSrsPhoenix.Accounts.create_hafiz_user(scope, attrs)
+    hafiz_user
+  end
 end

@@ -433,4 +433,137 @@ defmodule QuranSrsPhoenix.Accounts do
 
     Hafiz.changeset(hafiz, attrs, scope)
   end
+
+  alias QuranSrsPhoenix.Accounts.HafizUser
+  alias QuranSrsPhoenix.Accounts.Scope
+
+  @doc """
+  Subscribes to scoped notifications about any hafiz_user changes.
+
+  The broadcasted messages match the pattern:
+
+    * {:created, %HafizUser{}}
+    * {:updated, %HafizUser{}}
+    * {:deleted, %HafizUser{}}
+
+  """
+  def subscribe_hafiz_users(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(QuranSrsPhoenix.PubSub, "user:#{key}:hafiz_users")
+  end
+
+  @doc """
+  Returns the list of hafiz_users.
+
+  ## Examples
+
+      iex> list_hafiz_users(scope)
+      [%HafizUser{}, ...]
+
+  """
+  def list_hafiz_users(%Scope{} = scope) do
+    Repo.all_by(HafizUser, user_id: scope.user.id)
+  end
+
+  @doc """
+  Gets a single hafiz_user.
+
+  Raises `Ecto.NoResultsError` if the Hafiz user does not exist.
+
+  ## Examples
+
+      iex> get_hafiz_user!(123)
+      %HafizUser{}
+
+      iex> get_hafiz_user!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_hafiz_user!(%Scope{} = scope, id) do
+    Repo.get_by!(HafizUser, id: id, user_id: scope.user.id)
+  end
+
+  @doc """
+  Creates a hafiz_user.
+
+  ## Examples
+
+      iex> create_hafiz_user(%{field: value})
+      {:ok, %HafizUser{}}
+
+      iex> create_hafiz_user(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_hafiz_user(%Scope{} = scope, attrs) do
+    with {:ok, hafiz_user = %HafizUser{}} <-
+           %HafizUser{}
+           |> HafizUser.changeset(attrs, scope)
+           |> Repo.insert() do
+      broadcast(scope, {:created, hafiz_user})
+      {:ok, hafiz_user}
+    end
+  end
+
+  @doc """
+  Updates a hafiz_user.
+
+  ## Examples
+
+      iex> update_hafiz_user(hafiz_user, %{field: new_value})
+      {:ok, %HafizUser{}}
+
+      iex> update_hafiz_user(hafiz_user, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_hafiz_user(%Scope{} = scope, %HafizUser{} = hafiz_user, attrs) do
+    true = hafiz_user.user_id == scope.user.id
+
+    with {:ok, hafiz_user = %HafizUser{}} <-
+           hafiz_user
+           |> HafizUser.changeset(attrs, scope)
+           |> Repo.update() do
+      broadcast(scope, {:updated, hafiz_user})
+      {:ok, hafiz_user}
+    end
+  end
+
+  @doc """
+  Deletes a hafiz_user.
+
+  ## Examples
+
+      iex> delete_hafiz_user(hafiz_user)
+      {:ok, %HafizUser{}}
+
+      iex> delete_hafiz_user(hafiz_user)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_hafiz_user(%Scope{} = scope, %HafizUser{} = hafiz_user) do
+    true = hafiz_user.user_id == scope.user.id
+
+    with {:ok, hafiz_user = %HafizUser{}} <-
+           Repo.delete(hafiz_user) do
+      broadcast(scope, {:deleted, hafiz_user})
+      {:ok, hafiz_user}
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking hafiz_user changes.
+
+  ## Examples
+
+      iex> change_hafiz_user(hafiz_user)
+      %Ecto.Changeset{data: %HafizUser{}}
+
+  """
+  def change_hafiz_user(%Scope{} = scope, %HafizUser{} = hafiz_user, attrs \\ %{}) do
+    true = hafiz_user.user_id == scope.user.id
+
+    HafizUser.changeset(hafiz_user, attrs, scope)
+  end
 end
