@@ -463,7 +463,29 @@ defmodule QuranSrsPhoenix.Accounts do
 
   """
   def list_hafiz_users(%Scope{} = scope) do
-    Repo.all_by(HafizUser, user_id: scope.user.id)
+    HafizUser
+    |> where([hu], hu.user_id == ^scope.user.id)
+    |> preload([:user, :hafiz])
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of hafiz_users for a specific hafiz.
+
+  ## Examples
+
+      iex> list_hafiz_relationships(scope, hafiz_id)
+      [%HafizUser{}, ...]
+
+  """
+  def list_hafiz_relationships(%Scope{} = scope, hafiz_id) do
+    # First verify the user owns the hafiz
+    _ = get_hafiz!(scope, hafiz_id)
+    
+    HafizUser
+    |> where([hu], hu.hafiz_id == ^hafiz_id)
+    |> preload([:user, :hafiz])
+    |> Repo.all()
   end
 
   @doc """
@@ -481,7 +503,10 @@ defmodule QuranSrsPhoenix.Accounts do
 
   """
   def get_hafiz_user!(%Scope{} = scope, id) do
-    Repo.get_by!(HafizUser, id: id, user_id: scope.user.id)
+    HafizUser
+    |> where([hu], hu.id == ^id and hu.user_id == ^scope.user.id)
+    |> preload([:user, :hafiz])
+    |> Repo.one!()
   end
 
   @doc """
@@ -562,7 +587,10 @@ defmodule QuranSrsPhoenix.Accounts do
 
   """
   def change_hafiz_user(%Scope{} = scope, %HafizUser{} = hafiz_user, attrs \\ %{}) do
-    true = hafiz_user.user_id == scope.user.id
+    # Only check user_id for existing records (not new ones)
+    if hafiz_user.id do
+      true = hafiz_user.user_id == scope.user.id
+    end
 
     HafizUser.changeset(hafiz_user, attrs, scope)
   end

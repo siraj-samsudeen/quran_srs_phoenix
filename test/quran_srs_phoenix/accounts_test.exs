@@ -522,11 +522,13 @@ defmodule QuranSrsPhoenix.AccountsTest do
     end
 
     test "create_hafiz_user/2 with valid data creates a hafiz_user" do
-      valid_attrs = %{relationship: :owner}
       scope = user_scope_fixture()
+      hafiz = hafiz_fixture(scope)
+      valid_attrs = %{relationship: :owner, hafiz_id: hafiz.id}
 
       assert {:ok, %HafizUser{} = hafiz_user} = Accounts.create_hafiz_user(scope, valid_attrs)
-      assert hafiz_user.relationship == :owner
+      assert hafiz_user.relationship == :owner  
+      assert hafiz_user.hafiz_id == hafiz.id
       assert hafiz_user.user_id == scope.user.id
     end
 

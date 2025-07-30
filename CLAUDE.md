@@ -17,9 +17,55 @@
 
 ## Development Practices
 
-- No references to claude code in commit message - synchronise the commit message with the matching task in plan.md so that plan.md serves as changelog as well as plan
-- Plan structure: plan.md contains only tasks/subtasks for easy scanning, plan-details.md contains explanations for developer onboarding
-- Follow exact task hierarchy: H2 (Phase) → H3 (Main Task) → H4 (Subtasks) with descriptive text before commands
+### Critical Workflow Requirements
+
+**Commit Process (ESSENTIAL):**
+1. **ALWAYS stage files first** - Never commit without user review
+2. **Ask for approval** - Present staged files and wait for explicit "commit" command  
+3. **Fill plan.md and plan-details.md** with implementation details BEFORE asking for approval
+4. **Commit message = exact task description** from plan.md (no Claude references)
+5. **Atomic commits** - One task at a time, test each change, commit, then next step
+
+**Plan Structure (MANDATORY):**
+- **plan.md**: Only scannable tasks/subtasks with H2 (Phase) → H3 (Main Task) → H4 (Subtasks)
+- **plan-details.md**: Comprehensive H3 → H4 explanations for developer onboarding  
+- **Synchronization**: Each plan.md task has matching detailed section in plan-details.md
+- **Progressive**: Only document completed work, not future plans
+
+**Task Execution Pattern:**
+1. Small step → Do → Test (context + LiveView) → Update plan & details → Commit
+2. Use TodoWrite tool frequently for task tracking and progress visibility
+3. Mark todos complete immediately after finishing (don't batch)
+4. Only one task in_progress at a time
+
+### UI Development Standards
+
+**Phoenix LiveView + DaisyUI Patterns:**
+- **Card-based layouts** with proper spacing and visual hierarchy
+- **Horizontal toggle layouts** (avoid cramped vertical stacking)  
+- **Success color theming** for enabled states (green), neutral for disabled
+- **Consistent spacing**: Use DaisyUI spacing system (`space-y-4`, `gap-6`, `p-4`)
+- **Responsive design**: Mobile-first with desktop enhancements
+- **Semantic icons**: Use Heroicons with relationship-specific meanings
+
+**Component Architecture:**
+- **Private component functions** within LiveView modules
+- **Form field integration** with Phoenix.HTML.FormField  
+- **Error handling** with proper validation display
+- **Real-time updates** via Phoenix.PubSub subscriptions
+
+### MCP Tool Usage Requirements
+
+**ALWAYS use these MCPs:**
+- **Serena MCP** for code organization and analysis
+- **Context7 MCP** for understanding codebase context  
+- **Playwright MCP** for UI testing and screenshots (when available)
+
+**Usage Pattern:**
+- Use Context7 at start of sessions for codebase understanding
+- Use Serena for organizing complex tasks and improvements
+- Use Task tool with MCPs for multi-step operations
+
 
 ## Database Management
 

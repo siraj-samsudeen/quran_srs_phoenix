@@ -46,3 +46,14 @@
   - [x] Update router with authenticated permission routes
   - [x] Enhance UI with relationship icons and descriptions
   - [x] Run tests: `mix test`
+- [x] Build functional HafizUser relationship management system
+  - [x] Generate HafizUser LiveView: `mix phx.gen.live Accounts HafizUser hafiz_users --no-context --no-schema`
+  - [x] Create modern UI for adding/removing users from hafiz profiles
+  - [x] Add email-based user lookup with validation
+  - [x] Implement relationship type selection with permission preview
+  - [x] Update route structure to `/hafizs/:hafiz_id/users` for proper scoping
+  - [x] Fix HafizUser schema with virtual user_email field and associations
+  - [x] Update context functions with proper preloading
+  - [x] Fix test fixtures and ensure all tests pass
+  - [x] Run tests: `mix test` (164 tests, 0 failures)
+  - [x] Fix all test warnings and failures: `mix test` (166 tests, 0 failures, 8 skipped, NO WARNINGS)

@@ -106,12 +106,17 @@ defmodule QuranSrsPhoenix.AccountsFixtures do
   Generate a hafiz_user.
   """
   def hafiz_user_fixture(scope, attrs \\ %{}) do
+    # Create a hafiz first if hafiz_id is not provided
+    hafiz_id = attrs[:hafiz_id] || hafiz_fixture(scope).id
+    
     attrs =
       Enum.into(attrs, %{
-        relationship: :owner
+        relationship: :owner,
+        hafiz_id: hafiz_id
       })
 
     {:ok, hafiz_user} = QuranSrsPhoenix.Accounts.create_hafiz_user(scope, attrs)
-    hafiz_user
+    # Preload associations to match get functions
+    QuranSrsPhoenix.Repo.preload(hafiz_user, [:user, :hafiz])
   end
 end

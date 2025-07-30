@@ -82,12 +82,25 @@ defmodule QuranSrsPhoenix.Permissions do
   Returns default if not configured.
   """
   def get_relationship_permission(%Scope{} = scope, relationship) do
-    case Repo.get_by(RelationshipPermission, user_id: scope.user.id, relationship: relationship) do
-      nil -> 
-        # Return struct with default permissions
-        default = get_default_permissions(relationship)
-        struct(RelationshipPermission, Map.put(default, :relationship, relationship))
-      permission -> permission
+    case relationship do
+      :owner ->
+        # Owner has all permissions by default - no database lookup needed
+        %RelationshipPermission{
+          relationship: :owner,
+          can_view_progress: true,
+          can_edit_details: true,
+          can_manage_users: true,
+          can_delete_hafiz: true,
+          can_edit_preferences: true
+        }
+      _ ->
+        case Repo.get_by(RelationshipPermission, user_id: scope.user.id, relationship: relationship) do
+          nil -> 
+            # Return struct with default permissions
+            default = get_default_permissions(relationship)
+            struct(RelationshipPermission, Map.put(default, :relationship, relationship))
+          permission -> permission
+        end
     end
   end
 
