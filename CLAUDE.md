@@ -15,6 +15,63 @@
 2. **Pattern Layer** - User-configurable revision patterns built on algorithms
 3. **Assignment Layer** - Runtime execution for specific users and dates
 
+## Documentation Structure
+
+**Project documents are organized in the `/docs` folder with clear separation of concerns:**
+
+### Document Relationship Flow
+```
+Vision → Design → Plan → Implementation → Changelog
+  ↑                                          ↓
+  └─────── Feedback Loop ──────────────────┘
+```
+
+### Document Types
+
+**📋 `/docs/plan.md`** - Active Task Management
+- Current sprint/phase tasks and actionable todos
+- Simple bullet lists with status tracking
+- Updated frequently (daily/weekly)
+- Current blockers and next immediate actions
+
+**🎯 `/docs/quran_srs_vision.md`** - Foundational Philosophy  
+- Complete system vision and user personas
+- Comprehensive narrative approach analysis
+- Reference document for overall philosophy
+- Updated rarely (major vision changes only)
+
+**🏗️ `/docs/design.md`** - Technical Implementation Guide
+- Database schema, API specs, user stories
+- Component architecture and implementation patterns  
+- Technical decisions and rationale
+- Updated as design evolves during implementation
+
+**📝 `/docs/changelog.md`** - Historical Record
+- Completed work aligned with git commit messages
+- Chronological entries with dates and outcomes
+- Links to relevant commits where applicable
+- Updated after each significant milestone
+
+### Usage Patterns
+
+**For Project Owner:**
+- Check `plan.md` daily for current tasks
+- Reference `design.md` when making technical decisions  
+- Update `changelog.md` after commits
+- Review `vision.md` when onboarding others
+
+**For AI Assistant:**
+- Start with `vision.md` for context and philosophy
+- Check `design.md` for technical constraints and patterns
+- Read `plan.md` for current priorities and status
+- Use `changelog.md` to understand completed work
+
+**For New Team Members:**
+- Begin with `vision.md` for system understanding
+- Study `design.md` for technical implementation
+- Check `plan.md` for current work
+- Review `changelog.md` for project history
+
 ## Development Practices
 
 ### Critical Workflow Requirements
@@ -65,6 +122,42 @@
 - Use Context7 at start of sessions for codebase understanding
 - Use Serena for organizing complex tasks and improvements
 - Use Task tool with MCPs for multi-step operations
+
+### User Journey Documentation Format
+
+**For documenting user journeys and acceptance criteria, use this structured format:**
+
+```
+Context: [User state/permissions]
+
+😊 Happy Path:
+1. Action → Reaction → Next Action
+   ✓ Acceptance criteria for this step
+   ✓ UI/UX requirements
+   ✓ Performance/timing requirements
+
+2. Next Action → Next Reaction → Final Action
+   ✓ Additional criteria
+
+😞 Error Paths:
+├─ Invalid input → Validation error → User corrects
+│   ✓ Error message is clear and actionable
+└─ Permission denied → Access blocked → Redirect to login
+    ✓ Clear explanation of required permissions
+
+🤔 Edge Cases:
+├─ Server timeout → Retry prompt → Attempt again
+│   ✓ Graceful degradation with retry mechanism
+├─ Duplicate action → Already completed → Show status
+│   ✓ Idempotent behavior prevents errors
+└─ Mobile viewport → Responsive layout → Touch-friendly
+    ✓ UI adapts to screen size
+```
+
+**Path Types:**
+- **😊 Happy Path**: Primary success scenario where everything works as intended
+- **😞 Error Paths**: User mistakes, validation failures, and recoverable errors  
+- **🤔 Edge Cases**: Unusual but valid scenarios, system limitations, and boundary conditions
 
 
 ## Database Management
