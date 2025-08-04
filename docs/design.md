@@ -8,22 +8,22 @@ Context: [Anonymous visitor, no existing account, Phoenix auth system with email
 
 😊 Happy Path:
 1. User visits /users/register → Enters email/password → Clicks "Create account"
-   ✓ Email format validated (must be valid email format)
+   ✓ Email format validated (must be valid email format with @ sign, no spaces)
    ✓ Password requirements: minimum 12 characters OR minimum 8 with mixed case, numbers, symbols
    ✓ Form validates on submit, not real-time
    ✓ Submit button always enabled (validation happens server-side)
 
-2. Successful registration → Redirected to root path → Sees "A link to confirm your account has been sent to your email address."
+2. Successful registration → Redirected to /users/log-in → Sees confirmation message
    ✓ User account created but unconfirmed (confirmed_at: nil)
    ✓ Email confirmation token generated with 7-day expiry
    ✓ Confirmation email sent to provided address
-   ✓ User can still log in but will be prompted to confirm email
+   ✓ Flash message: "A link to confirm your account has been sent to your email address"
 
-3. User opens confirmation email → Clicks "Confirm my account" → Redirected to login page
+3. User opens confirmation email → Clicks "Confirm my account" → Redirected to root path
    ✓ Email contains confirmation link: /users/confirm/:token
-   ✓ Successful confirmation shows "User confirmed successfully"
-   ✓ User redirected to /users/log_in
-   ✓ User can now log in with full account privileges
+   ✓ Valid token confirms user account (sets confirmed_at timestamp)
+   ✓ User automatically logged in after confirmation
+   ✓ Success message shows "User confirmed successfully"
 
 4. User enters credentials on login → Clicks "Log in" → Sees authenticated dashboard
    ✓ Session token created and stored in encrypted cookie
@@ -34,27 +34,33 @@ Context: [Anonymous visitor, no existing account, Phoenix auth system with email
 😞 Error Paths:
 ├─ Invalid email format → Form error "must have the @ sign and no spaces" → User corrects
 │   ✓ Error shown after form submission with invalid email
+│   ✓ Form preserves other field values during validation
 ├─ Weak password → Form error "should be at least 12 character(s)" → User strengthens
 │   ✓ Password complexity error shown on submit
+│   ✓ Clear requirements displayed to user
 ├─ Email already exists → Form error "has already been taken" → Redirect to login suggested
 │   ✓ Link to login page provided in error message
-├─ Expired confirmation token → "User confirmation link is invalid or it has expired" → Resend available
-│   ✓ New confirmation link can be requested
-└─ Wrong login credentials → "Invalid email or password" → User retries
-    ✓ Generic error message for security (doesn't reveal if email exists)
-    ✓ No account lockout by default (configurable)
+│   ✓ No sensitive information revealed about existing accounts
+├─ Wrong login credentials → "Invalid email or password" → User retries
+│   ✓ Generic error message for security (doesn't reveal if email exists)
+│   ✓ No account lockout by default (configurable)
+└─ Expired confirmation token → "User confirmation link is invalid or it has expired" → Resend available
+    ✓ New confirmation link can be requested at /users/confirm/new
+    ✓ Previous tokens invalidated when new ones generated
 
 🤔 Edge Cases:
-├─ User tries to register with already confirmed email → Error shown → Login link provided
-│   ✓ Clear message directing user to login instead
-├─ Confirmation link clicked multiple times → "User already confirmed" → Redirect to login
+├─ User already authenticated tries to register → Redirect to settings → No error shown
+│   ✓ Silent redirect prevents confusion
+│   ✓ User sent to appropriate authenticated page
+├─ Confirmation link clicked multiple times → "Magic link is invalid or it has expired" → Login redirect
 │   ✓ Graceful handling of already-confirmed accounts
-├─ User loses confirmation email → Can request new confirmation → New token generated
-│   ✓ /users/confirm/new endpoint available for resending
-├─ Unconfirmed user tries sensitive actions → "You must confirm your account" → Blocked
+│   ✓ Previously confirmed user remains confirmed
+├─ Unconfirmed user tries sensitive actions → "You must confirm your account" → Blocked access
 │   ✓ Email confirmation required for password changes and sensitive operations
-└─ User session expires → Automatic logout → Redirect to login with "You must log in" message
-    ✓ Session timeout handling with clear messaging
+│   ✓ User redirected to confirmation instructions page
+└─ User session expires → Automatic logout → Redirect to login with message
+    ✓ Session timeout handling with "You must log in to access this page"
+    ✓ Intended destination saved for post-login redirect
 ```
 
 ### User Journey: Creating First Hafiz Profile
